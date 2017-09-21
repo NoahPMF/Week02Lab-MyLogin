@@ -18,16 +18,36 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class LoginServlet extends HttpServlet {
 
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-     
-    }
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {  
+        getServletContext().getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
     }
 
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        String username = request.getParameter("usrname");
+        String password = request.getParameter("psswd");
+
+        username = username.toLowerCase();
+        password = password.toLowerCase();
+
+        request.setAttribute("username", username);
+        request.setAttribute("password", password);
+
+        UserService us;
+        us = new UserService();
+
+        if (username.trim().isEmpty() && password.trim().isEmpty()) {
+            request.setAttribute("message", "both values are required");
+            getServletContext().getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
+        } else if (!us.login(username, password)) {
+            request.setAttribute("message", "invalid username or password");
+            getServletContext().getRequestDispatcher("/WEB-INF/login.jsp").forward(request, response);
+        } else {
+            getServletContext().getRequestDispatcher("/WEB-INF/mainPage.jsp").forward(request, response);
+        }
+    }
 
 }
